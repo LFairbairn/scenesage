@@ -1,7 +1,7 @@
 [project]
 name = "scenesage"
 version = "0.1.0"
-description = "A locally-running RAG tool where users upload a PDF film script and ask natural language questions about it"
+description = "A locally-running RAG (Retrieval-Augmented Generation) tool for analysing film scripts."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
