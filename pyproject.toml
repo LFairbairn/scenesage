@@ -1,0 +1,24 @@
+[project]
+name = "scenesage"
+version = "0.1.0"
+description = "A locally-running RAG tool where users upload a PDF film script and ask natural language questions about it"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=1.5.9",
+    "httpx>=0.28.1",
+    "pymupdf>=1.27.2.3",
+    "streamlit>=1.58.0",
+    "taskipy>=1.14.1",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+]
+
+[tool.black]
+target-version = ["py312"]
