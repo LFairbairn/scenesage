@@ -68,6 +68,13 @@ scenesage/
 ## How to test it
 - Add taskipy commands when ready
 
+## MCP Tools Available
+
+- **context7** — use for up-to-date library documentation (PyMuPDF, ChromaDB, httpx, Streamlit, RAGAS). Prefer this over training knowledge for API lookups.
+- **docker** — Docker management
+- **fetch** — fetch web pages
+- **playwright** — browser automation (phase 2 E2E tests)
+
 ## CI/Conventions
 - Github Actions to be used when initialised.
 - Follow industry level testing standards
