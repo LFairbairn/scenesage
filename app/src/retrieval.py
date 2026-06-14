@@ -37,4 +37,3 @@ async def generate_answer(chunks: list[str], query:str, ollama_url: str, ) -> st
             timeout=LLM_TIMEOUT
         )
         return response.json()["response"]
-

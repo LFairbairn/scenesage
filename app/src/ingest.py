@@ -7,6 +7,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODEL = "nomic-embed-text"
 
 def load_pdf(path: str) -> str:
+    path = str(path)
     if not path.lower().endswith(".pdf"):
         raise ValueError("Invalid file type. Please upload a valid .pdf file")
     with pymupdf.open(path) as doc:
