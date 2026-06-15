@@ -19,6 +19,7 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
+    "ruff>=0.15.17",
 ]
 
 [tool.black]
@@ -26,3 +27,9 @@ target-version = ["py312"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.taskipy.tasks]
+test = "pytest --cov=app.src --cov-report=term-missing"
+lint = "ruff check ."
+format = "black --check ."
+check = "task lint && task format && task test"
