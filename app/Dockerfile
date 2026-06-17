@@ -8,9 +8,10 @@ RUN pip install uv
 
 RUN uv sync --no-dev
 
-COPY  src/ ./src/
+COPY app/ ./app/
+ENV PYTHONPATH=/app
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "src/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["uv", "run", "streamlit", "run", "app/src/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
 

@@ -14,7 +14,7 @@ async def retrieve_chunks(query: str, ollama_url: str, chroma_client) -> list[st
             f"{ollama_url}/api/embed", json={"model": EMBED_MODEL, "input": query}
         )
         embedding = response.json()["embeddings"][0]
-        results = collection.query(query_embeddings=[embedding], n_results=5)
+        results = collection.query(query_embeddings=[embedding], n_results=15)
         return results["documents"][0]
 
 
@@ -25,7 +25,9 @@ async def generate_answer(
 ) -> str:
     context = "\n\n".join(chunks)
     prompt = (
-        f"Use the following passages from the script to answer the question.\n\n"
+        f"Only use the following passages, and nothing else, from the script to answer the question. "
+        f"Answer concisely in one or two sentences in your own words - do not copy or reproduce the passages directly. "
+        f"If the answer is not found in the passages, say 'I can not find that in the script.'\n\n"
         f"{context}\n\n"
         f"Question: {query}\n"
         f"Answer: "

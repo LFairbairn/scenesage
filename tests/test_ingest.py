@@ -50,6 +50,7 @@ async def test_embed_and_store(mocker):
         chunks=["chunk one", "chunk two"],
         ollama_url="http://localhost:11434",
         chroma_client=mock_chroma,
+        doc_hash="test-hash",
     )
 
     assert mock_chroma.get_or_create_collection.return_value.add.call_count == 2
