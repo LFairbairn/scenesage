@@ -1,5 +1,11 @@
 import pytest
-from app.src.ingest import load_pdf, chunk_text, embed_and_store, clean_text, is_already_embedded
+from app.src.ingest import (
+    load_pdf,
+    chunk_text,
+    embed_and_store,
+    clean_text,
+    is_already_embedded,
+)
 import pathlib
 
 
@@ -17,6 +23,7 @@ def test_load_valid_file():
 
     assert isinstance(result, str)
     assert len(result) > 0
+
 
 def test_chunk_text_normal_input():
     text = "First paragraph.\n\nSecond paragraph.\n\nThird paragraph."
