@@ -1,5 +1,7 @@
 # SceneSage
 
+[![CI](https://github.com/LFairbairn/scenesage/actions/workflows/ci.yml/badge.svg)](https://github.com/LFairbairn/scenesage/actions/workflows/ci.yml)
+
 A locally-running RAG (Retrieval-Augmented Generation) tool for analysing film scripts. Upload a PDF script and ask natural language questions through the Streamlit UI — SceneSage retrieves the most relevant passages and generates a plain English answer using a locally running LLM.
 
 ---
@@ -74,7 +76,7 @@ flowchart LR
     Retrieval -->|"Query text"| Embed
     Embed -->|"Query vector"| Retrieval
     Retrieval -->|"Vector search"| ChromaDB
-    ChromaDB -->|"Top 5 chunks"| Retrieval
+    ChromaDB -->|"Top 15 chunks"| Retrieval
     Retrieval -->|"Prompt + context"| LLM
     LLM -->|"Answer"| Retrieval
     Retrieval -->|"Plain English answer"| UI
@@ -100,16 +102,16 @@ scenesage/
 ├── app/
 │   ├── Dockerfile
 │   └── src/
-│       ├── app.py           # Streamlit UI
+│       ├── main.py          # Streamlit UI entry point
 │       ├── ingest.py        # PDF parsing and embedding
 │       └── retrieval.py     # Vector search and RAG chain
 ├── tests/
+│   ├── conftest.py          # Shared pytest fixtures
 │   ├── data/
 │   │   └── sample_script.pdf
 │   ├── test_ingest.py
-│   ├── test_retrieval.py
-│   └── e2e/
-│       └── test_ui.py
+│   └── test_retrieval.py
+├── screenshots/
 └── data/
     └── scripts/             # Sample PDF scripts (gitignored)
 ```
@@ -118,19 +120,53 @@ scenesage/
 
 ## How to Run
 
-> Prerequisites: Docker, Ollama installed natively, `nomic-embed-text` and `llama3.1` pulled via Ollama.
+**Prerequisites:**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Ollama](https://ollama.com) installed and running natively (not in Docker)
+
+**1. Pull the required models:**
 
 ```bash
-# To be completed when app.py is built
+ollama pull nomic-embed-text
+ollama pull llama3.1
 ```
+
+**2. Clone the repo and start the app:**
+
+```bash
+git clone https://github.com/LFairbairn/scenesage.git
+cd scenesage
+docker compose up --build
+```
+
+**3. Open the UI:**
+
+Navigate to [http://localhost:8501](http://localhost:8501), upload a PDF script, and start asking questions.
 
 ---
 
 ## How to Test
 
 ```bash
-# To be completed when taskipy is configured
+# Install dev dependencies
+uv sync
+
+# Run everything: lint, format check, and tests with coverage
+task check
+
+# Or run individually:
+task lint      # ruff linting
+task format    # black format check
+task test      # pytest with coverage report
 ```
+
+---
+
+## Screenshots
+
+![SceneSage welcome page](screenshots/Welcome_page.png)
+
+![SceneSage chat interface — Jurassic Park Q&A](screenshots/Scenesage_chat_example.png)
 
 ---
 
