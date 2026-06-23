@@ -111,6 +111,8 @@ scenesage/
 │   │   └── sample_script.pdf
 │   ├── test_ingest.py
 │   └── test_retrieval.py
+├── evaluation/
+│   └── evaluate.py          # RAGAS evaluation script
 ├── screenshots/
 └── data/
     └── scripts/             # Sample PDF scripts (gitignored)
@@ -202,9 +204,53 @@ This works regardless of what dialogue naturally appears in the script — a cha
 
 ---
 
-## Phase 2 — Evaluation
+## Phase 2 — RAGAS Evaluation
 
-RAGAS evaluation will be added in Phase 2, measuring:
-- **Faithfulness** — does the answer stick to the retrieved context?
-- **Answer relevancy** — does the answer address the question?
-- **Context precision** — did ChromaDB retrieve useful chunks?
+SceneSage includes a RAG evaluation pipeline using [RAGAS](https://github.com/explodinggradients/ragas). Rather than manually checking answers, RAGAS uses `llama3.1` as an automated judge — scoring the pipeline's outputs against a set of known questions and ground-truth answers.
+
+### How the evaluation pipeline works
+
+```mermaid
+flowchart TD
+    A["Sample Script PDF"] --> B["Ingest Pipeline\nclean → chunk → embed → store"]
+    C["Test Questions\n+ Ground Truths"] --> D
+
+    subgraph RAG["Real RAG Pipeline — same as the app"]
+        B --> D["retrieve_chunks()"]
+        D --> E["generate_answer()"]
+    end
+
+    E --> F["Bundle per question:\nquestion · answer · retrieved chunks · ground truth"]
+    F --> G["RAGAS evaluate()\nllama3.1 as judge"]
+
+    G --> H["faithfulness"]
+    G --> I["answer relevancy"]
+    G --> J["context precision"]
+    G --> K["context recall"]
+```
+
+The key point is that the evaluation runs the **real pipeline** — the same `retrieve_chunks` and `generate_answer` functions the app uses — not a mock. RAGAS then takes each question's output and scores it across four metrics:
+
+| Metric | What it measures | Needs ground truth? |
+|---|---|---|
+| **Faithfulness** | Does the answer only use information from the retrieved chunks? | No |
+| **Answer relevancy** | Does the answer directly address the question? | No |
+| **Context precision** | Are the retrieved chunks relevant to the question? | Yes |
+| **Context recall** | Do the retrieved chunks contain enough to answer correctly? | Yes |
+
+### Baseline results — *The Last Signal* (2-page test script)
+
+| Metric | Score |
+|---|---|
+| Faithfulness | 0.77 |
+| Answer relevancy | 0.80 |
+| Context precision | **1.00** |
+| Context recall | **1.00** |
+
+**Context precision and recall at 1.0** confirms the retrieval layer is working well — ChromaDB is returning relevant chunks and missing nothing. The lower faithfulness (0.77) reflects occasional cases where the LLM infers slightly beyond the retrieved text (e.g. describing a character as "possibly injured" when the script only says their hands were shaking). This is a prompt engineering target for future improvement.
+
+### Running the evaluation
+
+```bash
+task evaluate
+```
