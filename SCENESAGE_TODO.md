@@ -44,16 +44,16 @@
 
 
 ## CI
-- [ ] Create `.github/workflows/ci.yml` — lint + tests on push/PR
-- [ ] Add CI and coverage badges to README
+- [x] Create `.github/workflows/ci.yml` — lint + tests on push/PR
+- [x] Add CI badge to README
 
 ## README
 - [x] Write project overview, tech stack, architecture diagram
-- [ ] Add How to Run section (prerequisites: Docker, Ollama, nomic-embed-text, llama3.1)
-- [ ] Add screenshots
+- [x] Add How to Run section (prerequisites: Docker, Ollama, nomic-embed-text, llama3.1)
+- [x] Add screenshots
 
 ## Security
-- [ ] Add prompt injection detection to `load_pdf` output — scan extracted text for common injection patterns (e.g. "ignore previous instructions") before passing to the RAG pipeline
+- [x] Prompt injection protection — prompt-level context sandboxing in `generate_answer`: retrieved chunks wrapped in `<script_excerpt>` tags with upfront instruction to treat content as data only, not commands
 
 ## Future Development Ideas
 - **Multi-turn conversation memory** — `generate_answer` currently has no context of prior questions; each Q&A is independent. Would require passing conversation history into the prompt.
@@ -65,12 +65,11 @@
 - **Token-aware chunking** — replace character-count approximation with a real tokenizer for more precise context window management.
 
 ## Phase 2 — Evaluation
-- [ ] Pull `nomic-embed-text` and `llama3.1` via Ollama
-- [ ] Integrate RAGAS — evaluate faithfulness, answer relevancy, context precision
+- [x] Integrate RAGAS — `evaluation/evaluate.py` runs 5 questions through real pipeline and scores with llama3.1 as judge
+- [x] Baseline scores on sample script (The Last Signal): faithfulness 0.77, answer_relevancy 0.80, context_precision 1.0, context_recall 1.0
 - [ ] Display evaluation scores in UI or as a report
 - [ ] Create `tests/e2e/test_ui.py` — Playwright end-to-end tests
 - [ ] Update README with evaluation results
-- [ ] Good test queries to try on sample script:
 
 "What does Maya say when she first gets on the radio?"
 "How many survivors are there?"
