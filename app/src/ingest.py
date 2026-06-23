@@ -7,6 +7,7 @@ MODEL = "nomic-embed-text"
 
 
 def load_pdf(path: str) -> str:
+    # Pages are joined with a form feed character (chr(12)) as a page boundary marker.
     path = str(path)
     if not path.lower().endswith(".pdf"):
         raise ValueError("Invalid file type. Please upload a valid .pdf file")
@@ -16,18 +17,24 @@ def load_pdf(path: str) -> str:
 
 
 def clean_text(text: str) -> str:
+    # Screenplay PDFs hard-wrap lines at a fixed column width, not at sentence boundaries.
+    # Replacing single newlines with spaces rejoins those broken lines before chunking.
     paragraphs = text.split("\n\n")
     cleaned = [p.replace("\n", " ") for p in paragraphs]
     return "\n\n".join(cleaned)
 
 
 def is_already_embedded(chroma_client, doc_hash) -> bool:
+    # Checks by content hash rather than filename so renamed files aren't re-embedded.
     collection = chroma_client.get_or_create_collection("scripts")
     results = collection.get(where={"doc_hash": doc_hash}, limit=1)
     return len(results["ids"]) > 0
 
 
 def chunk_text(text: str, max_chars: int = 2000) -> list[str]:
+    # max_chars is a character-count approximation of the token limit — a real tokenizer
+    # would be more precise but adds a dependency. 2000 chars stays safely under the
+    # nomic-embed-text context window in practice.
     paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
     chunks = []
     for paragraph in paragraphs:
@@ -53,6 +60,8 @@ def chunk_text(text: str, max_chars: int = 2000) -> list[str]:
 async def embed_and_store(
     chunks: list[str], ollama_url: str, chroma_client, doc_hash: str
 ):
+    # IDs are "{doc_hash}_{chunk_index}" so the same document can never produce
+    # duplicate ChromaDB entries across sessions.
     collection = chroma_client.get_or_create_collection("scripts")
     async with httpx.AsyncClient() as client:
         for i, chunk in enumerate(chunks):

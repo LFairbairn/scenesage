@@ -17,7 +17,11 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
 
 def main():
+    # Streamlit reruns this entire function on every user interaction.
+    # session_state persists values across reruns so we don't recreate the
+    # ChromaDB client or lose the message history on each rerun.
     if "chroma_client" not in st.session_state:
+        # PersistentClient writes to the Docker volume so embeddings survive container restarts.
         st.session_state.chroma_client = chromadb.PersistentClient(
             path="/app/data/chromadb"
         )
@@ -26,21 +30,21 @@ def main():
 
     st.title("SceneSage")
     st.markdown("""
-    Hi, welcome to Scenesage! Upload a script and ask questions about its characters, scenes, and dialogue. 
+    Hi, welcome to Scenesage! Upload a script and ask questions about its characters, scenes, and dialogue.
     """)
 
-    # File upload
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
     if uploaded_file:
+        # Guard prevents reprocessing the same file on every Streamlit rerun.
         if st.session_state.get("script_name") != uploaded_file.name:
+            # PyMuPDF needs a real file path, not an in-memory buffer.
+            # delete=False so the file still exists when load_pdf opens it after the `with` block closes.
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
                 tmp.write(uploaded_file.getbuffer())
                 tmp_path = tmp.name
 
             text = load_pdf(tmp_path)
-
             text = clean_text(text)
-
             doc_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
 
             if is_already_embedded(st.session_state.chroma_client, doc_hash):
@@ -49,17 +53,21 @@ def main():
                 st.success(f"{uploaded_file.name} File already loaded.")
             else:
                 chunks = chunk_text(text)
+                # asyncio.run() blocks here until embedding completes — it is NOT
+                # concurrent. It's a bridge from Streamlit's sync context into async code.
                 asyncio.run(
                     embed_and_store(
                         chunks, OLLAMA_URL, st.session_state.chroma_client, doc_hash
                     )
                 )
                 st.session_state.script_name = uploaded_file.name
+                # Clear history so answers from a previous script don't persist.
                 st.session_state.messages = []
                 st.success(f"{uploaded_file.name} loaded and ready!")
 
     if not st.session_state.get("script_name"):
         st.info("Upload a PDF script above to get started.")
+        # Early return: prevents the chat UI from rendering before a script is loaded.
         return
 
     st.markdown(f"**Loaded script:** {st.session_state.script_name}")

@@ -39,7 +39,8 @@
 - [x] Create `tests/test_retrieval.py` — integration tests with real ChromaDB (mock with pytest-mock or is there in memory chromadb option? - fixture?)
 - [x] Achieve 100% coverage of ingest.py and retrieval.py
 - [x] Create a test aggregator for taskipy so one call runs: linting (ruff),black and tests.
-- [ ] Add tests for `is_already_embedded` (no match found, match found) and update `test_embed_and_store` for the new `doc_hash` param + metadata/id changes
+- [x] Add tests for `is_already_embedded` (no match found, match found), `clean_text`, `chunk_text` word-split path, and `embed_and_store` bad Ollama response — 100% coverage restored
+- [x] Add `conftest.py` with `chroma_client` fixture for test isolation (EphemeralClient shares global in-memory store; fixture deletes collection on teardown)
 
 
 ## CI

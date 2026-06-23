@@ -1,12 +1,10 @@
 import pytest
-import chromadb
 from app.src.retrieval import retrieve_chunks, generate_answer
 
 
 @pytest.mark.asyncio
-async def test_retrieve_chunks(mocker):
-    client = chromadb.Client()
-    collection = client.get_or_create_collection("scripts")
+async def test_retrieve_chunks(mocker, chroma_client):
+    collection = chroma_client.get_or_create_collection("scripts")
     collection.add(
         ids=["1"],
         embeddings=[[0.1, 0.2, 0.3]],
@@ -20,7 +18,7 @@ async def test_retrieve_chunks(mocker):
     )
 
     results = await retrieve_chunks(
-        "test query", ollama_url="http://localhost:11434", chroma_client=client
+        "test query", ollama_url="http://localhost:11434", chroma_client=chroma_client
     )
 
     assert results[0] == "A test chunk of script text"
