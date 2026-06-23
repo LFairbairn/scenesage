@@ -19,14 +19,27 @@ from langchain_ollama import ChatOllama, OllamaEmbeddings
 from ragas import evaluate
 from ragas.embeddings import LangchainEmbeddingsWrapper
 from ragas.llms import LangchainLLMWrapper
-from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
+from ragas.metrics import (
+    answer_relevancy,
+    context_precision,
+    context_recall,
+    faithfulness,
+)
 from ragas.run_config import RunConfig
 
-from app.src.ingest import chunk_text, clean_text, embed_and_store, is_already_embedded, load_pdf
+from app.src.ingest import (
+    chunk_text,
+    clean_text,
+    embed_and_store,
+    is_already_embedded,
+    load_pdf,
+)
 from app.src.retrieval import generate_answer, retrieve_chunks
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-SCRIPT_PATH = pathlib.Path(__file__).parent.parent / "tests" / "data" / "sample_script.pdf"
+SCRIPT_PATH = (
+    pathlib.Path(__file__).parent.parent / "tests" / "data" / "sample_script.pdf"
+)
 
 QUESTIONS = [
     "What does Maya say when she first gets on the radio?",
